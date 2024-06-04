@@ -14,7 +14,18 @@
 Для установки плагина выполните следующие шаги:
 
 1. Распакуйте архив с плагином.
-2. Переместите распакованную папку в каталог `wa-apps/shop/plugins/`.
+2. Переместите распакованную папку в каталог `wa-apps/shop/plugins.`.
+3. Для темы "Free" - в category.html добавить:
+
+```
+    {if !isset($filters)}
+        {$filters = []}
+        {$fastFilters = shopFastfilterPlugin::getCategoryFeatures($category.id)}
+        {if !empty($fastFilters)}
+            {$filters = $fastFilters}
+        {/if}
+    {/if}
+```
 
 Плагин не требует дополнительных зависимостей и конфигурации после установки.
 
