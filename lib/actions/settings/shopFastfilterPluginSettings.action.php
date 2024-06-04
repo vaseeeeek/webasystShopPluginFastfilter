@@ -10,7 +10,7 @@ class shopFastfilterPluginSettingsAction extends waViewAction
         $categories = $model->query("SELECT id, name FROM shop_category")->fetchAll();
         
         // Получение характеристик
-        $features = $model->query("SELECT id, name FROM shop_feature")->fetchAll();
+        $features = $model->query("SELECT id, name, code FROM shop_feature")->fetchAll();
 
         // Получение текущих настроек
         $settings = $model->getAllSettings();

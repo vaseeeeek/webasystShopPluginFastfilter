@@ -25,11 +25,13 @@ class shopFastfilterSettingsModel extends waModel
      * @param array $default_values
      * @return bool
      */
-    public function saveSettings($category_id, $feature_id, $default_values)
+    public function saveSettings($category_id, $feature_id, $feature_code, $feature_name, $default_values)
     {
         $data = [
             'category_id' => $category_id,
             'feature_id' => $feature_id,
+            'feature_code' => $feature_code,
+            'feature_name' => $feature_name,
             'default_values' => json_encode($default_values)
         ];
         

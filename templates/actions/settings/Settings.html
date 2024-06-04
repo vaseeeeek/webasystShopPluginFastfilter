@@ -21,7 +21,7 @@
         <div class="value">
             <select class="ff-select" name="feature_id" id="js-fastfilter-select-feat">
                 {foreach from=$features item=feature}
-                    <option value="{$feature.id}">{$feature.name}</option>
+                    <option value="{$feature.id}"  data-code="{$feature.code}">{$feature.name}</option>
                 {/foreach}
             </select>
         </div>

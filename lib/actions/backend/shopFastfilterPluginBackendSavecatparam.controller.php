@@ -24,7 +24,7 @@ class shopFastfilterPluginBackendSavecatparamController extends waJsonController
         $model = new shopFastfilterSettingsModel();
         
         // Сохраняем настройки
-        $success = $model->saveSettings($data['category_id'], $data['feature_id'], $feature_values);
+        $success = $model->saveSettings($data['category_id'], $data['feature_id'], $data['feature_code'], $data['feature_name'], $feature_values);
 
         if ($success) {
             $this->response = array(

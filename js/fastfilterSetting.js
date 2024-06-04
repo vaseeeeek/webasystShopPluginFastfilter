@@ -60,6 +60,8 @@ class FastFilter {
         const selectedTexts = Array.from(this.selectValue.selectedOptions).map(option => option.text);
         const categoryId = this.selectCategory.value;
         const featureId = this.selectElement.value;
+        const featureCode = $(this.selectElement).find('option:selected').data('code');
+        const featureName = $(this.selectElement).find('option:selected').text();
 
         if (selectedValues.length === 0) {
             alert('Пожалуйста, выберите хотя бы одно значение.');
@@ -69,6 +71,8 @@ class FastFilter {
         const params = new URLSearchParams({
             category_id: categoryId,
             feature_id: featureId,
+            feature_code: featureCode,
+            feature_name: featureName,
             feature_values: JSON.stringify(selectedValues.map((value, index) => ({
                 id: value,
                 name: selectedTexts[index]
