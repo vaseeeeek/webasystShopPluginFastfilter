@@ -1,7 +1,12 @@
 <?php
 
 class shopFastfilterPlugin extends shopPlugin
-{
+{   
+	public static function getInstance($from = null)
+	{
+		return wa('shop')->getPlugin('fastfilter');
+	}
+
     /**
      * Получить характеристики и их значения для указанной категории.
      *
