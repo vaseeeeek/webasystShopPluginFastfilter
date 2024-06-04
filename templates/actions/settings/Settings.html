@@ -1,0 +1,67 @@
+<link rel="stylesheet" href="{$pluginUrl}css/fastfilterSetting.css">
+
+<form class="ff-form">
+    {$wa->csrf()}
+
+    <h2>Выберите категории и характеристики</h2>
+
+    <div class="ff-field">
+        <div class="name">Категория</div>
+        <div class="value">
+            <select name="category_id">
+                {foreach from=$categories item=category}
+                    <option value="{$category.id}">{$category.name}</option>
+                {/foreach}
+            </select>
+        </div>
+    </div>
+
+    <div class="ff-field">
+        <div class="name">Характеристика</div>
+        <div class="value">
+            <select class="ff-select" name="feature_id" id="js-fastfilter-select-feat">
+                {foreach from=$features item=feature}
+                    <option value="{$feature.id}">{$feature.name}</option>
+                {/foreach}
+            </select>
+        </div>
+    </div>
+
+    <div class="ff-field">
+        <div class="name">Значение</div>
+        <select class="ff-select" name="feature_id" id="js-fastfilter-select-value" multiple>
+        </select>
+    </div>
+
+    <div class="ff-field">
+        <div class="value submit">
+            <input type="submit" id="js-save-button" class="button green ff-button" value="Сохранить">
+        </div>
+    </div>
+</form>
+
+<h2>Есть</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Категория</th>
+            <th>Характеристика</th>
+            <th>Выводимые значения</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {foreach from=$settings item=setting}
+            <tr>
+                <td>{$setting.category_id}</td>
+                <td>{$setting.feature_id}</td>
+                <td>{implode(', ', $setting.default_values)}</td>
+                <td>
+                    <a href="?module=plugins&plugin=fastfilter&action=delete&id={$setting.id}" class="button red">Delete</a>
+                </td>
+            </tr>
+        {/foreach}
+    </tbody>
+</table>
+
+<script src="{$pluginUrl}js/fastfilterSetting.js"></script>
