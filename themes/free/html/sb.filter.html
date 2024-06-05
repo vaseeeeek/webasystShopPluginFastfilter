@@ -1,0 +1,337 @@
+{strip}
+    <style class="destroy_at_ready">
+        .filter-el_opts {
+            max-height: 200px;
+            overflow: hidden;
+        }
+    </style>
+    <script>
+        $(document).on('ready', function(){
+            setTimeout(function(){
+                $('.destroy_at_ready').remove();
+            }, 1000)
+        })
+    </script>
+        {$is_smartfilters_hide_options = !empty($smartfilters.hideDisabled)}
+        <div class="sb-wrap filters js-filters js-ajax"{if $is_smartfilters_hide_options} data-smartfilters-hide-option="1"{/if}>
+    
+            <form id="filter-body" class="filters-body js-filter-body" method="get" action="{$wa->currentUrl(0,1)}">
+    
+                {*<div class="filters-body__title">
+                    <div class="filters-body__title__text">Фильтр</div>
+                    {$reset_link = $wa->currentUrl(0,1)}
+                    {if isset($category) && class_exists('shopSeofilterViewHelper')}
+                        {$reset_link = $wa->shop->categoryUrl($category)}
+                    {/if}
+                    <div class="filters-body__title__text__btn">
+                        <a class="filter-reset" href="{$reset_link}{if $wa->get('sort')}?sort={$wa->get('sort')|escape}&order={$wa->get('order')|escape}{/if}">[`Clear`]</a>
+                        <span class="js-filter-fixed-btn close-filter">&#10005;</span>
+                    </div>
+                </div>*}
+    
+                {$indexFilter = 0}
+                {foreach $filters as $filterId => $filter}
+                    {if $filterId == 'price'}{$filter.code = 'price'}{/if}
+                    {$is_close = false}
+                    {if $theme_settings.max_show_filter && $indexFilter >= $theme_settings.max_show_filter && !count((array)$wa->get($filter.code, array()))}
+                        {$is_close = true}
+                    {/if}
+                    <div data-code="{$filter.code}" class="js-filter-el filter-el{if $is_close} close{/if}">
+                        <div class="filter-el_title js-filter-title">
+                            {if $filterId == 'price'}
+                                {$c = $wa->shop->currency(true)}
+                                <span class="filter-el_title__text">[`Price`]&nbsp;</span>
+                                <span class="filter-el__unit">{$c.sign}</span>
+                            {else}
+                                <span class="filter-el_title__text fiwex-feat" data-feat_id="{$filter.id}">{$filter.name|escape}</span>
+    
+                                <i class="fi-rr-angle-small-down"></i>
+                                {if !empty($filter.unit)}, <span class="filter-el__unit">{$filter.unit.title}</span>{/if}
+                            {/if}
+                        </div>
+    
+                        {if !empty($filter.values) && count($filter.values) >= $theme_settings.show_filter_search && $filter.type == "varchar"}
+                            <div class="filter__search">
+                                <input placeholder="[`I'm looking for ...`]" type="text">
+                            </div>
+                        {/if}
+                        {if $filter['isFastFilter']}
+                            <div class="f-filter__search">
+                                <input type="text" class="filter-input" data-category_id="{$category.id}" data-features_id="{$filterId}" data-code="{$filter.code}">
+                            </div>
+                        {/if}
+                        <div class="filter-el_opts js-filter-options">
+                            {if $filterId == 'price'}
+                                <div class="js-filter-range">
+                                    <div class="filter-range">
+                                        <div class="filter-range__min">
+                                            <div class="filter-range__min__text">от</div>
+                                            <input type="text" class="js-number filter-range_el js-min" name="price_min" {if $wa->get('price_min')}value="{(int)$wa->get('price_min')}"{/if} placeholder="{floor($filter.min)}">
+                                        </div>
+    
+    
+                                        <div class="filter-range__max">
+                                            <div class="filter-range__max__text">до</div>
+                                            <input type="text" class="js-number filter-range_el js-max" name="price_max" {if $wa->get('price_max')}value="{(int)$wa->get('price_max')}"{/if} placeholder="{ceil($filter.max)}">
+                                        </div>
+                                    </div>
+                                </div>
+                            {else}
+                                {if $filter.type == 'boolean'}
+                                    {$value = ""}
+                                    {if $wa->get($filter.code) || $wa->get($filter.code) === '0'}
+                                        {$value = $wa->get($filter.code)}
+                                        {if is_array($value) && isset($value[0])} {$value = $value[0]} {/if}
+                                    {/if}1
+                                    <div class="filter-el_opts-el label-flex">
+                                        <label>
+                                        <span class="js-toggle-styler style-check fi-rr-check{if $value} checked{/if}">
+                                            <input class="js-toggle-styler-input" type="radio" name="{$filter.code}" value="1"{if $value} checked="checked"{/if}>
+                                        </span>
+                                            {$radio_filter_url = ''}
+                                            {if class_exists('shopSeofilterViewHelper')}
+                                                {$radio_filter_url = shopSeofilterViewHelper::getFilterUrl($filter.id, "1", $filter.code)}
+                                            {/if}
+                                            {if $radio_filter_url}
+                                                <a class="filter-link" href="{$radio_filter_url}">[`Yes`]</a>
+                                            {else}
+                                                [`Yes`]
+                                            {/if}
+                                        </label>
+                                    </div>
+                                    <div class="filter-el_opts-el label-flex">
+                                        <label>
+                                        <span class="js-toggle-styler style-check fi-rr-check{if $value === '0'} checked{/if}">
+                                            <input class="js-toggle-styler-input" type="radio" name="{$filter.code}" value="0"{if $value === '0'} checked="checked"{/if}>
+                                        </span>
+                                            {$radio_filter_url = ''}
+                                            {if class_exists('shopSeofilterViewHelper')}
+                                                {$radio_filter_url = shopSeofilterViewHelper::getFilterUrl($filter.id, "0", $filter.code)}
+                                            {/if}
+                                            {if $radio_filter_url}
+                                                <a class="filter-link" href="{$radio_filter_url}">[`No`]</a>
+                                            {else}
+                                                [`No`]
+                                            {/if}
+                                        </label>
+                                    </div>
+                                    <div class="filter-el_opts-el label-flex">
+                                        <label>
+                                        <span class="js-toggle-styler style-check fi-rr-check{if $wa->get($filter.code, '') === ''} checked{/if}">
+                                            <input class="js-toggle-styler-input" type="radio" name="{$filter.code}" value=""{if $wa->get($filter.code, '') === ''} checked="checked"{/if}>
+                                        </span>
+                                            [`Any`]
+                                        </label>
+                                    </div>
+                                {elseif isset($filter.min)}
+                                    {$_v_filter = $wa->get($filter.code)}
+                                    <div class="js-filter-range">
+                                        <div class="filter-range">
+                                            <div class="filter-range__min">
+                                                <div class="filter-range__min__text">от</div>
+                                                <input type="text" class="js-number js-min filter-range_el" name="{$filter.code}[min]" placeholder="{$filter.min}" {if !empty($_v_filter.min)}value="{(float)$_v_filter.min}"{/if}>
+                                            </div>
+                                            <div class="filter-range__max">
+                                                <div class="filter-range__max__text">до</div>
+                                                <input type="text" class="js-number js-max filter-range_el" name="{$filter.code}[max]" placeholder="{$filter.max}" {if !empty($_v_filter.max)}value="{(float)$_v_filter.max}"{/if}>
+                                                {if !empty($filter.unit)}
+                                                    {if $filter.unit.value != $filter.base_unit.value}
+                                                        <input type="hidden" name="{$filter.code}[unit]"
+                                                               value="{$filter.unit.value}">
+                                                    {/if}
+                                                {/if}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {else}
+                                    {$index = 0}
+                                    {$is_select_opt = false}
+                                    {if count((array)$wa->get($filter.code, array()))}
+                                        {$is_select_opt = true}
+                                    {/if}
+                                    {if $filter.type == 'color'}
+                                        <div class="filter-el_opts-el">
+                                            {foreach $filter.values as $value_id => $value}
+                                                <label class="option-color_outer {if empty($theme_settings.view_filter_color_text)} _without-text{else}_only-text{/if}{if in_array($value_id, (array)$wa->get($filter.code, array()))} checked{/if}">
+                                                <span class="filter-option-color{if in_array($value_id, (array)$wa->get($filter.code, array()))} checked{/if}" style="{$value->style}">
+                                                    <span class="js-style-check style-check{if in_array($value_id, (array)$wa->get($filter.code, array()))} checked{/if}">
+                                                        <input class="js-style-check-input" type="checkbox" name="{$filter.code}[]" {if in_array($value_id, (array)$wa->get($filter.code, array()))}checked{/if} value="{$value_id}">
+                                                    </span>
+                                                </span>
+                                                    <span class="option-color_text">
+                                                    {$filter_url = ''}
+                                                        {if class_exists('shopSeofilterViewHelper')}
+                                                            {$filter_url = shopSeofilterViewHelper::getFilterUrl($filter.id, $value_id, $filter.code)}
+                                                        {/if}
+                                                        {if $filter_url}
+                                                            <a class="filter-link"
+                                                               href="{$filter_url}">{$value|strip_tags|trim}</a>
+                                                        {else}
+                                                            {$value|strip_tags|trim}
+                                                        {/if}
+                                                </span>
+                                                </label>
+                                                {$index = $index+1}
+                                            {/foreach}
+                                        </div>
+                                    {else}
+                                        {foreach $filter.values as $value_id => $value}
+    
+                                            <label class="filter-el_opts-el label-flex filter-opt_el{if $filter['isFastFilter']} -fixed-fastfilter-values{/if}">
+                                                <span class="js-style-check style-check{if in_array($value_id, (array)$wa->get($filter.code, array()))} checked{/if} fi-rr-check">
+                                                    <input class="js-style-check-input" type="checkbox" name="{$filter.code}[]"
+                                                           {if in_array($value_id, (array)$wa->get($filter.code, array()))}checked{/if} value="{$value_id}" data-code="{$value_id}">
+                                                </span>
+                                                {$filter_url = ''}
+                                                {if class_exists('shopSeofilterViewHelper')}
+                                                    {$filter_url = shopSeofilterViewHelper::getFilterUrl($filter.id, $value_id, $filter.code)}
+                                                {/if}
+    
+                                                {if $filter_url}
+                                                    <a class="filter-link" href="{$filter_url}">
+                                                        {$value|strip_tags|trim}
+                                                    </a>
+                                                {else}
+                                                    <span class="fiwex-feat-val" data-code="{$value_id}" data-feat_val_id="{$value_id}" data-fiwex-parent_id="{$filter.id}">
+                                                        {$value|strip_tags|trim}
+                                                    </span>
+                                                {/if}
+                                            </label>
+                                            {$index = $index+1}
+                                        {/foreach}
+                                    {/if}
+                                {/if}
+                            {/if}
+                        </div>
+                    </div>
+                    {$indexFilter = $indexFilter+1}
+                {/foreach}
+                {if $wa->get('sort')}<input type="hidden" name="sort" value="{$wa->get('sort')|escape}">{/if}
+                {if $wa->get('order')}<input type="hidden" name="order" value="{$wa->get('order')|escape}">{/if}
+                
+                <div class="filter-el filter-el--btns">
+                    <input type="submit" class="bg-maincolor" value="[`Filter products`]">
+                    {$reset_link = $wa->currentUrl(0,1)}
+                    {if isset($category) && class_exists('shopSeofilterViewHelper')}
+                        {$reset_link = $wa->shop->categoryUrl($category)}
+                    {/if}
+                    <a class="filter-reset" href="{$reset_link}{if $wa->get('sort')}?sort={$wa->get('sort')|escape}&order={$wa->get('order')|escape}{/if}">[`Clear`]</a>
+                </div>
+                <div class="filter__submit">
+                    <input type="submit" class="bg-maincolor js-filter-fixed-btn" value="[`Filter products`]">
+                </div>
+            </form>
+        </div>
+    {/strip}
+    {if class_exists('shopColorfeaturesproPlugin')}
+        {$colorfeaturespro = shopColorfeaturesproPlugin::getAllColors()}
+        <script>
+            $(document).on('ready', function(){
+                const colorfeaturespro = {json_encode($colorfeaturespro)}
+    
+                // Получаем все элементы с классом option-color_text
+                const optionColorTextElements = document.querySelectorAll('.option-color_text');
+    
+                // Итерируемся по каждому элементу и проверяем, есть ли совпадение с текстом из массива colorfeaturespro
+                optionColorTextElements.forEach((element) => {
+                    colorfeaturespro.forEach((color) => {
+                        if (element.textContent.trim() === color.name) {
+                            // Если совпадение найдено, заменяем значение style у родительского элемента с классом filter-option-color
+                            const filterOptionColorElement = $(element).siblings('.filter-option-color')[0];
+                            if (filterOptionColorElement) {
+                                filterOptionColorElement.style = color.style;
+                            }
+                        }
+                    });
+                });
+            })
+        </script>
+    {/if}
+    {literal}
+        <script>
+            function bindFilterChangeEvents() {
+                $(".js-filters.js-ajax form input").off('change').on('change', function() {
+                    if (!$(this).closest('.filter__search').length) {
+                        var form = $(this).closest("form");
+                        itemList.ajaxUpListForm(form.serializeArray());
+                    }
+                });
+            }
+        
+            document.addEventListener('DOMContentLoaded', function() {
+                const filterInputs = document.querySelectorAll('.filter-input');
+        
+                filterInputs.forEach(input => {
+                    input.addEventListener('input', function() {
+                        const text = input.value;
+                        if (text.length < 4) {
+                            return; // Не отправлять запрос, если длина текста меньше 4 символов
+                        }
+        
+                        const category_id = input.getAttribute('data-category_id');
+                        const features_id = input.getAttribute('data-features_id');
+                        const filterOptionsContainer = input.closest('.js-filter-el').querySelector('.js-filter-options');
+        
+                        fetch(`/plugin/fastfilter/filter/?text=${encodeURIComponent(text)}&category_id=${encodeURIComponent(category_id)}&features_id=${encodeURIComponent(features_id)}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                // Сохраняем уже загруженные значения
+                                const fixedValues = filterOptionsContainer.querySelectorAll('.-fixed-fastfilter-values');
+        
+                                // Очищаем контейнер, кроме зафиксированных значений
+                                filterOptionsContainer.innerHTML = '';
+                                fixedValues.forEach(value => {
+                                    filterOptionsContainer.appendChild(value);
+                                });
+        
+                                // Добавляем новые данные
+                                data.data.forEach(item => {
+                                    if (!Array.from(fixedValues).some(el => el.querySelector('.js-style-check-input').value == item.feature_value_id)) {
+                                        const label = document.createElement('label');
+                                        label.classList.add('filter-el_opts-el', 'label-flex', 'filter-opt_el');
+        
+                                        const spanCheck = document.createElement('span');
+                                        spanCheck.classList.add('js-style-check', 'style-check', 'fi-rr-check');
+                                        const inputCheck = document.createElement('input');
+                                        inputCheck.classList.add('js-style-check-input');
+                                        inputCheck.type = 'checkbox';
+                                        inputCheck.name = `${input.getAttribute('data-code')}[]`;
+                                        inputCheck.value = item.feature_value_id;
+                                        inputCheck.setAttribute('data-code', item.feature_value_id);
+                                        spanCheck.appendChild(inputCheck);
+        
+                                        const spanValue = document.createElement('span');
+                                        spanValue.classList.add('fiwex-feat-val');
+                                        spanValue.setAttribute('data-code', item.feature_value_id);
+                                        spanValue.setAttribute('data-feat_val_id', item.feature_value_id);
+                                        spanValue.setAttribute('data-fiwex-parent_id', features_id);
+                                        spanValue.textContent = item.value;
+        
+                                        label.appendChild(spanCheck);
+                                        label.appendChild(spanValue);
+                                        filterOptionsContainer.appendChild(label);
+                                    }
+                                });
+        
+                                // Привязка событий к новым элементам фильтра
+                                bindFilterChangeEvents();
+                                
+                                // Обновление URL с новыми фильтрами
+                                const form = document.querySelector('.js-filter-body');
+                                const formData = new FormData(form);
+                                const queryString = new URLSearchParams(formData).toString();
+                                const newUrl = `${window.location.pathname}?${queryString}`;
+                                window.history.pushState({ path: newUrl }, '', newUrl);
+                            })
+                            .catch(error => {
+                                console.error('Fetch error:', error);
+                            });
+                    });
+                });
+        
+                // Изначальная привязка событий к элементам фильтра
+                bindFilterChangeEvents();
+            });
+        </script>
+        {/literal}
+        
