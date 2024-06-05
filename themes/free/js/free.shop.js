@@ -136,7 +136,7 @@ var reviews = {
             })
         })
     }
-}, var filter = {
+}, filter = {
     init: function () {
         var e = this;
         e.showElem(), e.showMobFilter(), e.send(), e.rangeFilter($(".js-filters .js-filter-range")), e.showMoreFilter(), e.smartfilterRefrCloseFilter(), e.selectedFiltersClear(), e.initialFilterSubcat();
@@ -235,7 +235,7 @@ var reviews = {
                     var e = $(this);
                     e.removeClass("js-filter-options-el").removeClass("hide"), e.hasClass("sf-label-disabled") && e.is(":hidden") || s++, a < s && (i.show(), e.addClass("js-filter-options-el"), t || e.addClass("hide"));
                 }));
-            }), $(".js-filter-body").find('input[type="checkbox"], input[type="radio"], .js-select").trigger("refresh");
+            }), $(".js-filter-body").find('input[type="checkbox"], input[type="radio"], .js-select').trigger("refresh");
         }, 500);
     },
     selectedFiltersClear: function () {

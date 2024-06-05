@@ -276,7 +276,7 @@
                             .then(response => response.json())
                             .then(data => {
                                 // Сохраняем уже загруженные значения
-                                const fixedValues = filterOptionsContainer.querySelectorAll('.-fixed-fastfilter-values');
+                                const fixedValues = filterOptionsContainer.querySelectorAll('.-fixed-fastfilter-values, .checked');
         
                                 // Очищаем контейнер, кроме зафиксированных значений
                                 filterOptionsContainer.innerHTML = '';
