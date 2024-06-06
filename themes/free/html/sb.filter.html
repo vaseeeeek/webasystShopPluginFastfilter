@@ -323,13 +323,41 @@
             // Обработчик для кнопки "Показать еще"
             const showMoreButtons = document.querySelectorAll('.f-filter__btn-show-full');
             
+            // function cacheHtml(key, html) {
+            //     try {
+            //         const compressed = LZString.compress(html);
+            //         localStorage.setItem(key, compressed);
+            //     } catch (e) {
+            //         console.error('Failed to set item in localStorage:', e);
+            //     }
+            // }
+
+            // function getCachedHtml(key) {
+            //     const compressed = localStorage.getItem(key);
+            //     if (compressed) {
+            //         return LZString.decompress(compressed);
+            //     }
+            //     return null;
+            // }
+
             showMoreButtons.forEach(button => {
                 button.addEventListener('click', function() {
+                    console.time("MyTimer");
                     const filterEl = button.closest('.js-filter-el');
                     const filterSearch = filterEl.querySelector('.filter__search');
                     const category_id = filterEl.getAttribute('data-category_id');
                     const features_id = filterEl.getAttribute('data-features_id');
                     const filterOptionsContainer = filterEl.querySelector('.js-filter-options');
+                    // const cacheKey = `filters_${category_id}_${features_id}`;
+
+                    // // Проверяем наличие данных в кэше
+                    // const cachedHtml = getCachedHtml(cacheKey);
+                    // if (cachedHtml) {
+                    //     filterOptionsContainer.innerHTML = cachedHtml;
+                    //     bindFilterChangeEvents();
+                    //     console.timeEnd("MyTimer");; // Начало измерения времени
+                    //     return;
+                    // }
 
                     if (filterSearch) {
                         // Делаем элемент видимым
@@ -370,6 +398,10 @@
                                     filterOptionsContainer.appendChild(label);
                                 }
                             });
+                            console.timeEnd("MyTimer");; // Начало измерения времени
+
+                            // // Сохраняем верстку в кэш
+                            // cacheHtml(cacheKey, filterOptionsContainer.innerHTML);
 
                             bindFilterChangeEvents();
                         })
@@ -378,9 +410,46 @@
                         });
                 });
             });
+            /*
+            showMoreButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const filterEl = button.closest('.js-filter-el');
+                    const category_id = filterEl.getAttribute('data-category_id');
+                    const features_id = filterEl.getAttribute('data-features_id');
+                    const filterOptionsContainer = filterEl.querySelector('.js-filter-options');
 
+                    const filterSearch = filterEl.querySelector('.filter__search');
+                    if (filterSearch) {
+                        filterSearch.style.display = 'block';
+                    }
+
+                    console.time('Filter Build Time');
+
+                    fetch(`/plugin/fastfilter/filter/?category_id=${encodeURIComponent(category_id)}&features_id=${encodeURIComponent(features_id)}&get_all=1`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (!data.data.html) {
+                                throw new Error('Invalid JSON response');
+                            }
+                            filterOptionsContainer.innerHTML = data.data.html;
+                            bindFilterChangeEvents();
+                            console.timeEnd('Filter Build Time');
+                        })
+                        .catch(error => {
+                            console.error('Fetch error:', error);
+                            console.timeEnd('Filter Build Time');
+                        });
+                });
+            });
+            
             // Изначальная привязка событий к элементам фильтра
             bindFilterChangeEvents();
+            */
         });
     </script>
 {/literal}

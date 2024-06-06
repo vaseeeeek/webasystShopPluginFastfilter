@@ -13,7 +13,7 @@ class shopFastfilterPlugin extends shopPlugin
      * @param int $category_id
      * @return array
      */
-    public function getCategoryFeatures($category_id)
+    public static function getCategoryFeatures($category_id)
     {
         // Создаем экземпляр модели
         $model = new shopFastfilterSettingsModel();
