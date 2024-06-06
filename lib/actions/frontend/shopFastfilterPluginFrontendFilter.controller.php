@@ -1,4 +1,5 @@
 <?php
+
 class shopFastfilterPluginFrontendFilterController extends waJsonController
 {
     public function execute()
@@ -6,7 +7,8 @@ class shopFastfilterPluginFrontendFilterController extends waJsonController
         $text = waRequest::get('text', '', 'string');
         $category_id = waRequest::get('category_id', 0, 'int');
         $features_id = waRequest::get('features_id', 0, 'int');
-        
+        $get_all = waRequest::get('get_all', 0, 'int');
+
         // Формируем имя таблицы
         $table_name = 'shop_fastfilter_' . intval($category_id) . '_' . intval($features_id);
 
@@ -20,8 +22,13 @@ class shopFastfilterPluginFrontendFilterController extends waJsonController
         }
 
         // Запрос данных из таблицы
-        $sql = "SELECT feature_value_id, value FROM `{$table_name}` WHERE `value` LIKE ?";
-        $results = $model->query($sql, '%' . $text . '%')->fetchAll();
+        if ($get_all) {
+            $sql = "SELECT feature_value_id, value FROM `{$table_name}`";
+            $results = $model->query($sql)->fetchAll();
+        } else {
+            $sql = "SELECT feature_value_id, value FROM `{$table_name}` WHERE `value` LIKE ?";
+            $results = $model->query($sql, '%' . $text . '%')->fetchAll();
+        }
 
         // Возвращаем JSON ответ
         $this->response = $results;

@@ -36,7 +36,7 @@
                     {if $theme_settings.max_show_filter && $indexFilter >= $theme_settings.max_show_filter && !count((array)$wa->get($filter.code, array()))}
                         {$is_close = true}
                     {/if}
-                    <div data-code="{$filter.code}" class="js-filter-el filter-el{if $is_close} close{/if}">
+                    <div data-code="{$filter.code}" class="js-filter-el filter-el{if $is_close} close{/if}" data-features_id="{$filterId}" data-category_id="{$category.id}">
                         <div class="filter-el_title js-filter-title">
                             {if $filterId == 'price'}
                                 {$c = $wa->shop->currency(true)}
@@ -50,16 +50,16 @@
                             {/if}
                         </div>
     
-                        {if !empty($filter.values) && count($filter.values) >= $theme_settings.show_filter_search && $filter.type == "varchar"}
-                            <div class="filter__search">
+                        {if !empty($filter.values) && ((count($filter.values) >= $theme_settings.show_filter_search && $filter.type == "varchar") || $filter['isFastFilter'])}
+                            <div class="filter__search"{if $filter['isFastFilter']} style="display:none"{/if}>
                                 <input placeholder="[`I'm looking for ...`]" type="text">
                             </div>
                         {/if}
-                        {if $filter['isFastFilter']}
+                        {* {if $filter['isFastFilter']}
                             <div class="f-filter__search">
                                 <input type="text" class="filter-input" data-category_id="{$category.id}" data-features_id="{$filterId}" data-code="{$filter.code}">
                             </div>
-                        {/if}
+                        {/if} *}
                         <div class="filter-el_opts js-filter-options">
                             {if $filterId == 'price'}
                                 <div class="js-filter-range">
@@ -179,8 +179,7 @@
     
                                             <label class="filter-el_opts-el label-flex filter-opt_el{if $filter['isFastFilter']} -fixed-fastfilter-values{/if}">
                                                 <span class="js-style-check style-check{if in_array($value_id, (array)$wa->get($filter.code, array()))} checked{/if} fi-rr-check">
-                                                    <input class="js-style-check-input" type="checkbox" name="{$filter.code}[]"
-                                                           {if in_array($value_id, (array)$wa->get($filter.code, array()))}checked{/if} value="{$value_id}" data-code="{$value_id}">
+                                                    <input class="js-style-check-input" type="checkbox" name="{$filter.code}[]" {if in_array($value_id, (array)$wa->get($filter.code, array()))}checked{/if} value="{$value_id}" data-code="{$value_id}">
                                                 </span>
                                                 {$filter_url = ''}
                                                 {if class_exists('shopSeofilterViewHelper')}
@@ -203,6 +202,11 @@
                                 {/if}
                             {/if}
                         </div>
+                        {if $filter['isFastFilter']}
+                            <div class="f-filter__btn-show-full">
+                                Показать все
+                            </div>
+                        {/if}
                     </div>
                     {$indexFilter = $indexFilter+1}
                 {/foreach}
@@ -247,91 +251,137 @@
             })
         </script>
     {/if}
-    {literal}
-        <script>
-            function bindFilterChangeEvents() {
-                $(".js-filters.js-ajax form input").off('change').on('change', function() {
-                    if (!$(this).closest('.filter__search').length) {
-                        var form = $(this).closest("form");
-                        itemList.ajaxUpListForm(form.serializeArray());
+{literal}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterInputs = document.querySelectorAll('.filter-input');
+            
+            // Обработчик для поля ввода фильтра
+            filterInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const text = input.value;
+                    if (text.length < 4) {
+                        return; // Не отправлять запрос, если длина текста меньше 4 символов
                     }
-                });
-            }
-        
-            document.addEventListener('DOMContentLoaded', function() {
-                const filterInputs = document.querySelectorAll('.filter-input');
-        
-                filterInputs.forEach(input => {
-                    input.addEventListener('input', function() {
-                        const text = input.value;
-                        if (text.length < 4) {
-                            return; // Не отправлять запрос, если длина текста меньше 4 символов
-                        }
-        
-                        const category_id = input.getAttribute('data-category_id');
-                        const features_id = input.getAttribute('data-features_id');
-                        const filterOptionsContainer = input.closest('.js-filter-el').querySelector('.js-filter-options');
-        
-                        fetch(`/plugin/fastfilter/filter/?text=${encodeURIComponent(text)}&category_id=${encodeURIComponent(category_id)}&features_id=${encodeURIComponent(features_id)}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                // Сохраняем уже загруженные значения
-                                const fixedValues = filterOptionsContainer.querySelectorAll('.-fixed-fastfilter-values, .checked');
-        
-                                // Очищаем контейнер, кроме зафиксированных значений
-                                filterOptionsContainer.innerHTML = '';
-                                fixedValues.forEach(value => {
-                                    filterOptionsContainer.appendChild(value);
-                                });
-        
-                                // Добавляем новые данные
-                                data.data.forEach(item => {
-                                    if (!Array.from(fixedValues).some(el => el.querySelector('.js-style-check-input').value == item.feature_value_id)) {
-                                        const label = document.createElement('label');
-                                        label.classList.add('filter-el_opts-el', 'label-flex', 'filter-opt_el');
-        
-                                        const spanCheck = document.createElement('span');
-                                        spanCheck.classList.add('js-style-check', 'style-check', 'fi-rr-check');
-                                        const inputCheck = document.createElement('input');
-                                        inputCheck.classList.add('js-style-check-input');
-                                        inputCheck.type = 'checkbox';
-                                        inputCheck.name = `${input.getAttribute('data-code')}[]`;
-                                        inputCheck.value = item.feature_value_id;
-                                        inputCheck.setAttribute('data-code', item.feature_value_id);
-                                        spanCheck.appendChild(inputCheck);
-        
-                                        const spanValue = document.createElement('span');
-                                        spanValue.classList.add('fiwex-feat-val');
-                                        spanValue.setAttribute('data-code', item.feature_value_id);
-                                        spanValue.setAttribute('data-feat_val_id', item.feature_value_id);
-                                        spanValue.setAttribute('data-fiwex-parent_id', features_id);
-                                        spanValue.textContent = item.value;
-        
-                                        label.appendChild(spanCheck);
-                                        label.appendChild(spanValue);
-                                        filterOptionsContainer.appendChild(label);
-                                    }
-                                });
-        
-                                // Привязка событий к новым элементам фильтра
-                                bindFilterChangeEvents();
-                                
-                                // Обновление URL с новыми фильтрами
-                                const form = document.querySelector('.js-filter-body');
-                                const formData = new FormData(form);
-                                const queryString = new URLSearchParams(formData).toString();
-                                const newUrl = `${window.location.pathname}?${queryString}`;
-                                window.history.pushState({ path: newUrl }, '', newUrl);
-                            })
-                            .catch(error => {
-                                console.error('Fetch error:', error);
+
+                    const category_id = input.getAttribute('data-category_id');
+                    const features_id = input.getAttribute('data-features_id');
+                    const filterOptionsContainer = input.closest('.js-filter-el').querySelector('.js-filter-options');
+
+                    fetch(`/plugin/fastfilter/filter/?text=${encodeURIComponent(text)}&category_id=${encodeURIComponent(category_id)}&features_id=${encodeURIComponent(features_id)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const fixedValues = filterOptionsContainer.querySelectorAll('.-fixed-fastfilter-values, .checked');
+
+                            filterOptionsContainer.innerHTML = '';
+                            fixedValues.forEach(value => {
+                                filterOptionsContainer.appendChild(value);
                             });
-                    });
+
+                            data.data.forEach(item => {
+                                if (!Array.from(fixedValues).some(el => el.querySelector('.js-style-check-input').value == item.feature_value_id)) {
+                                    const label = document.createElement('label');
+                                    label.classList.add('filter-el_opts-el', 'label-flex', 'filter-opt_el');
+
+                                    const spanCheck = document.createElement('span');
+                                    spanCheck.classList.add('js-style-check', 'style-check', 'fi-rr-check');
+                                    const inputCheck = document.createElement('input');
+                                    inputCheck.classList.add('js-style-check-input');
+                                    inputCheck.type = 'checkbox';
+                                    inputCheck.name = `${input.getAttribute('data-code')}[]`;
+                                    inputCheck.value = item.feature_value_id;
+                                    inputCheck.setAttribute('data-code', item.feature_value_id);
+                                    spanCheck.appendChild(inputCheck);
+
+                                    const spanValue = document.createElement('span');
+                                    spanValue.classList.add('fiwex-feat-val');
+                                    spanValue.setAttribute('data-code', item.feature_value_id);
+                                    spanValue.setAttribute('data-feat_val_id', item.feature_value_id);
+                                    spanValue.setAttribute('data-fiwex-parent_id', features_id);
+                                    spanValue.textContent = item.value;
+
+                                    label.appendChild(spanCheck);
+                                    label.appendChild(spanValue);
+                                    filterOptionsContainer.appendChild(label);
+                                }
+                            });
+
+                            bindFilterChangeEvents();
+                            
+                            const form = document.querySelector('.js-filter-body');
+                            const formData = new FormData(form);
+                            const queryString = new URLSearchParams(formData).toString();
+                            const newUrl = `${window.location.pathname}?${queryString}`;
+                            window.history.pushState({ path: newUrl }, '', newUrl);
+                        })
+                        .catch(error => {
+                            console.error('Fetch error:', error);
+                        });
                 });
-        
-                // Изначальная привязка событий к элементам фильтра
-                bindFilterChangeEvents();
             });
-        </script>
-        {/literal}
+
+            // Обработчик для кнопки "Показать еще"
+            const showMoreButtons = document.querySelectorAll('.f-filter__btn-show-full');
+            
+            showMoreButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const filterEl = button.closest('.js-filter-el');
+                    const filterSearch = filterEl.querySelector('.filter__search');
+                    const category_id = filterEl.getAttribute('data-category_id');
+                    const features_id = filterEl.getAttribute('data-features_id');
+                    const filterOptionsContainer = filterEl.querySelector('.js-filter-options');
+
+                    if (filterSearch) {
+                        // Делаем элемент видимым
+                        filterSearch.style.display = 'block';
+                    }
+                    fetch(`/plugin/fastfilter/filter/?category_id=${encodeURIComponent(category_id)}&features_id=${encodeURIComponent(features_id)}&get_all=1`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const fixedValues = filterOptionsContainer.querySelectorAll('.-fixed-fastfilter-values, .checked');
+                            fixedValues.forEach(value => {
+                                filterOptionsContainer.appendChild(value);
+                            });
+
+                            data.data.forEach(item => {
+                                if (!Array.from(fixedValues).some(el => el.querySelector('.js-style-check-input').value == item.feature_value_id)) {
+                                    const label = document.createElement('label');
+                                    label.classList.add('filter-el_opts-el', 'label-flex', 'filter-opt_el');
+
+                                    const spanCheck = document.createElement('span');
+                                    spanCheck.classList.add('js-style-check', 'style-check', 'fi-rr-check');
+                                    const inputCheck = document.createElement('input');
+                                    inputCheck.classList.add('js-style-check-input');
+                                    inputCheck.type = 'checkbox';
+                                    inputCheck.name = `${filterEl.getAttribute('data-code')}[]`;
+                                    inputCheck.value = item.feature_value_id;
+                                    inputCheck.setAttribute('data-code', item.feature_value_id);
+                                    spanCheck.appendChild(inputCheck);
+
+                                    const spanValue = document.createElement('span');
+                                    spanValue.classList.add('fiwex-feat-val');
+                                    spanValue.setAttribute('data-code', item.feature_value_id);
+                                    spanValue.setAttribute('data-feat_val_id', item.feature_value_id);
+                                    spanValue.setAttribute('data-fiwex-parent_id', features_id);
+                                    spanValue.textContent = item.value;
+
+                                    label.appendChild(spanCheck);
+                                    label.appendChild(spanValue);
+                                    filterOptionsContainer.appendChild(label);
+                                }
+                            });
+
+                            bindFilterChangeEvents();
+                        })
+                        .catch(error => {
+                            console.error('Fetch error:', error);
+                        });
+                });
+            });
+
+            // Изначальная привязка событий к элементам фильтра
+            bindFilterChangeEvents();
+        });
+    </script>
+{/literal}
         
