@@ -11,7 +11,6 @@ class shopFastfilterPluginFrontendFilterController extends waJsonController
 
         // Получение кэша
         $cache = wa()->getCache('default');
-        $cache->delete($cache_key);
         if ($html = $cache->get($cache_key)) {
             $this->response = ['html' => $html];
             return;

@@ -51,7 +51,7 @@
                         </div>
     
                         {if !empty($filter.values) && ((count($filter.values) >= $theme_settings.show_filter_search && $filter.type == "varchar") || $filter['isFastFilter'])}
-                            <div class="filter__search"{if $filter['isFastFilter']} style="display:none"{/if}>
+                            <div class="filter__search__in-template"{if $filter['isFastFilter']} style="display:none"{/if}>
                                 <input placeholder="[`I'm looking for ...`]" type="text">
                             </div>
                         {/if}
@@ -202,7 +202,8 @@
                                 {/if}
                             {/if}
                         </div>
-                        {if $filter['isFastFilter']}
+                        
+                        {if $filter['isFastFilter'] && count($filter.values) < 6}
                             <div class="f-filter__btn-show-full">
                                 Показать все
                             </div>
@@ -329,7 +330,7 @@
                     const category_id = filterEl.getAttribute('data-category_id');
                     const features_id = filterEl.getAttribute('data-features_id');
                     const filterOptionsContainer = filterEl.querySelector('.js-filter-options');
-                    const filterSearch = filterEl.querySelector('.filter__search');
+                    const filterSearch = filterEl.querySelector('.filter__search__in-template');
                     const filterCode = filterEl.getAttribute('data-code');
 
                     if (filterSearch) {
@@ -337,7 +338,6 @@
                     }
 
                     console.time('Filter Build Time');
-
                     fetch(`/plugin/fastfilter/filter/?category_id=${encodeURIComponent(category_id)}&features_id=${encodeURIComponent(features_id)}&get_all=1&filterCode=${encodeURIComponent(filterCode)}`)
                         .then(response => {
                             if (!response.ok) {
