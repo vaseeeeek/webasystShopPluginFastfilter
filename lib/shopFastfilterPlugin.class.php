@@ -49,5 +49,34 @@ class shopFastfilterPlugin extends shopPlugin
 
         return $return;
     }
+    
+    public function frontendCategory($category)
+    {
+        // Получаем текущие параметры фильтра из URL
+        $filter_params = waRequest::get();
+        
+        // Проверяем наличие параметров фильтра
+        if (isset($filter_params['razrabotchik'])) {
+            $feature_value_id = $filter_params['razrabotchik'][0];  // Предполагаем, что это razrabotchik[]
+
+            // Формируем имя таблицы
+            $category_id = $category['id'];
+            $features_id = 6;  // Значение для вашего примера
+            $table_name = 'shop_fastfilter_' . intval($category_id) . '_' . intval($features_id);
+            $model = new waModel();
+
+            try {
+                $seo_url = $model->query("SELECT seo_url FROM `{$table_name}` WHERE `feature_value_id` = ?", $feature_value_id)->fetchField();
+                waLog::dump($seo_url);
+                if ($seo_url) {
+                    // Выполняем редирект на SEO-friendly URL
+                    wa()->getResponse()->redirect(wa()->getRouteUrl('/games/' . $seo_url));
+                    return;
+                }
+            } catch (waDbException $e) {
+                waLog::log($e->getMessage(), 'fastfilter.log');
+            }
+        }
+    }
 
 }

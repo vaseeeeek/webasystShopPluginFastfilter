@@ -8,5 +8,6 @@ return array (
   'frontend'    => true,
   'handlers' => 
   array (
+    'frontend_category' => 'frontendCategory'
   ),
 );
