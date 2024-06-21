@@ -3,17 +3,20 @@
 class shopFastfilterPluginFrontendFilterController extends waJsonController
 {
     public function execute()
-    {
+    {   
+        $needCash = false;
         $category_id = waRequest::get('category_id', 0, 'int');
         $features_id = waRequest::get('features_id', 0, 'int');
         $get_all = waRequest::get('get_all', 0, 'int');
-        $cache_key = "filters_html_{$category_id}_{$features_id}_v1";
-
-        // Получение кэша
-        $cache = wa()->getCache('default');
-        if ($html = $cache->get($cache_key)) {
-            $this->response = ['html' => $html];
-            return;
+        if ($needCash) {
+            $cache_key = "filters_html_{$category_id}_{$features_id}_v1";
+    
+            // Получение кэша
+            $cache = wa()->getCache('default');
+            if ($html = $cache->get($cache_key)) {
+                $this->response = ['html' => $html];
+                return;
+            }
         }
 
         // Формируем имя таблицы
@@ -48,8 +51,10 @@ class shopFastfilterPluginFrontendFilterController extends waJsonController
             $html .= "</label>";
         }
 
-        // Сохранение в кэш на 24 часа
-        $cache->set($cache_key, $html, 86400);
+        if ($needCash) {
+            // Сохранение в кэш на 24 часа
+            $cache->set($cache_key, $html, 86400);
+        }
 
         $this->response = ['html' => $html];
     }
