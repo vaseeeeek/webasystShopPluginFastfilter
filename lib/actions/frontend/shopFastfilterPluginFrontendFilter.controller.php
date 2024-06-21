@@ -32,7 +32,9 @@ class shopFastfilterPluginFrontendFilterController extends waJsonController
 
         // Запрос данных из таблицы
         if ($get_all) {
-            $sql = "SELECT feature_value_id, value FROM `{$table_name}`";
+            // $table_name = $table_name . '_full_view';
+            // $sql = "SELECT feature_value_id, value FROM `{$table_name}`";
+            $sql = "SELECT feature_value_id, value FROM `{$table_name}` WHERE `full_view` = 1";
             $results = $model->query($sql)->fetchAll();
         } else {
             $text = waRequest::get('text', '', 'string');
