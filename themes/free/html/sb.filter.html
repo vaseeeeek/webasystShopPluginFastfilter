@@ -55,11 +55,11 @@
                                 <input placeholder="[`I'm looking for ...`]" type="text">
                             </div>
                         {/if}
-                        {* {if $filter['isFastFilter']}
+                        {if $filter['isFastFilter']}
                             <div class="f-filter__search">
                                 <input type="text" class="filter-input" data-category_id="{$category.id}" data-features_id="{$filterId}" data-code="{$filter.code}">
                             </div>
-                        {/if} *}
+                        {/if}
                         <div class="filter-el_opts js-filter-options">
                             {if $filterId == 'price'}
                                 <div class="js-filter-range">
@@ -254,14 +254,14 @@
     {/if}
 {literal}
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const filterInputs = document.querySelectorAll('.filter-input');
-            
+
             // Обработчик для поля ввода фильтра
             filterInputs.forEach(input => {
-                input.addEventListener('input', function() {
+                input.addEventListener('input', function () {
                     const text = input.value;
-                    if (text.length < 4) {
+                    if (text.length < 3) {
                         return; // Не отправлять запрос, если длина текста меньше 4 символов
                     }
 
@@ -272,48 +272,30 @@
                     fetch(`/plugin/fastfilter/filter/?text=${encodeURIComponent(text)}&category_id=${encodeURIComponent(category_id)}&features_id=${encodeURIComponent(features_id)}`)
                         .then(response => response.json())
                         .then(data => {
+                            if (!data.data.html) {
+                                throw new Error('Invalid JSON response');
+                            }
+
                             const fixedValues = filterOptionsContainer.querySelectorAll('.-fixed-fastfilter-values, .checked');
 
+                            // Очищаем контейнер, но оставляем зафиксированные значения
                             filterOptionsContainer.innerHTML = '';
                             fixedValues.forEach(value => {
                                 filterOptionsContainer.appendChild(value);
                             });
 
-                            data.data.forEach(item => {
-                                if (!Array.from(fixedValues).some(el => el.querySelector('.js-style-check-input').value == item.feature_value_id)) {
-                                    const label = document.createElement('label');
-                                    label.classList.add('filter-el_opts-el', 'label-flex', 'filter-opt_el');
-
-                                    const spanCheck = document.createElement('span');
-                                    spanCheck.classList.add('js-style-check', 'style-check', 'fi-rr-check');
-                                    const inputCheck = document.createElement('input');
-                                    inputCheck.classList.add('js-style-check-input');
-                                    inputCheck.type = 'checkbox';
-                                    inputCheck.name = `${input.getAttribute('data-code')}[]`;
-                                    inputCheck.value = item.feature_value_id;
-                                    inputCheck.setAttribute('data-code', item.feature_value_id);
-                                    spanCheck.appendChild(inputCheck);
-
-                                    const spanValue = document.createElement('span');
-                                    spanValue.classList.add('fiwex-feat-val');
-                                    spanValue.setAttribute('data-code', item.feature_value_id);
-                                    spanValue.setAttribute('data-feat_val_id', item.feature_value_id);
-                                    spanValue.setAttribute('data-fiwex-parent_id', features_id);
-                                    spanValue.textContent = item.value;
-
-                                    label.appendChild(spanCheck);
-                                    label.appendChild(spanValue);
-                                    filterOptionsContainer.appendChild(label);
+                            // Вставка новых данных
+                            const tempContainer = document.createElement('div');
+                            tempContainer.innerHTML = data.data.html;
+                            console.log(tempContainer);
+                            const newElements = tempContainer.children;
+                            Array.from(newElements).forEach(el => {
+                                if (!Array.from(fixedValues).some(fixedEl => fixedEl.querySelector('.js-style-check-input').value == el.querySelector('.js-style-check-input').value)) {
+                                    filterOptionsContainer.appendChild(el);
                                 }
                             });
 
                             bindFilterChangeEvents();
-                            
-                            const form = document.querySelector('.js-filter-body');
-                            const formData = new FormData(form);
-                            const queryString = new URLSearchParams(formData).toString();
-                            const newUrl = `${window.location.pathname}?${queryString}`;
-                            window.history.pushState({ path: newUrl }, '', newUrl);
                         })
                         .catch(error => {
                             console.error('Fetch error:', error);
@@ -323,19 +305,19 @@
 
             // Обработчик для кнопки "Показать еще"
             const showMoreButtons = document.querySelectorAll('.f-filter__btn-show-full');
-            
+
             showMoreButtons.forEach(button => {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function () {
                     const filterEl = button.closest('.js-filter-el');
                     const category_id = filterEl.getAttribute('data-category_id');
                     const features_id = filterEl.getAttribute('data-features_id');
                     const filterOptionsContainer = filterEl.querySelector('.js-filter-options');
-                    const filterSearch = filterEl.querySelector('.filter__search__in-template');
+                    //const filterSearch = filterEl.querySelector('.filter__search__in-template');
                     const filterCode = filterEl.getAttribute('data-code');
 
-                    if (filterSearch) {
-                        filterSearch.style.display = 'block';
-                    }
+                    // if (filterSearch) {
+                    //     filterSearch.style.display = 'block';
+                    // }
 
                     console.time('Filter Build Time');
                     fetch(`/plugin/fastfilter/filter/?category_id=${encodeURIComponent(category_id)}&features_id=${encodeURIComponent(features_id)}&get_all=1&filterCode=${encodeURIComponent(filterCode)}`)
@@ -343,6 +325,8 @@
                             if (!response.ok) {
                                 throw new Error('Network response was not ok');
                             }
+                            console.timeEnd('Filter Build Time');
+                            console.log('получил');
                             return response.json();
                         })
                         .then(data => {
@@ -369,7 +353,6 @@
                             });
 
                             bindFilterChangeEvents();
-                            console.timeEnd('Filter Build Time');
                         })
                         .catch(error => {
                             console.error('Fetch error:', error);

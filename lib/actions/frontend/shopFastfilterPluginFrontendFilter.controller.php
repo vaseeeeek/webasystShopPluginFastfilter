@@ -34,11 +34,11 @@ class shopFastfilterPluginFrontendFilterController extends waJsonController
         if ($get_all) {
             // $table_name = $table_name . '_full_view';
             // $sql = "SELECT feature_value_id, value FROM `{$table_name}`";
-            $sql = "SELECT feature_value_id, value FROM `{$table_name}` WHERE `full_view` = 1";
+            $sql = "SELECT feature_value_id, value FROM `{$table_name}` WHERE `full_view` = 1 ORDER BY `{$table_name}`.`value` ASC";
             $results = $model->query($sql)->fetchAll();
         } else {
             $text = waRequest::get('text', '', 'string');
-            $sql = "SELECT feature_value_id, value FROM `{$table_name}` WHERE `value` LIKE ?";
+            $sql = "SELECT feature_value_id, value FROM `{$table_name}` WHERE `value` LIKE ? ORDER BY `{$table_name}`.`value` ASC";
             $results = $model->query($sql, '%' . $text . '%')->fetchAll();
         }
 
