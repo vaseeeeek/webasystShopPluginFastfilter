@@ -44,7 +44,7 @@
 <table class="fastfilter-table">
     <thead class="fastfilter-table__header">
         <tr class="fastfilter-table__row fastfilter-table__row--header">
-            <th class="fastfilter-table__cell fastfilter-table__cell--header">Категория</th>
+            <th class="fastfilter-table__cell fastfilter-table__cell--header">Id кат.</th>
             <th class="fastfilter-table__cell fastfilter-table__cell--header">Характеристика</th>
             <th class="fastfilter-table__cell fastfilter-table__cell--header">Выводимые значения</th>
             <th class="fastfilter-table__cell fastfilter-table__cell--header"></th>
@@ -58,7 +58,7 @@
                 <td class="fastfilter-table__cell">{$setting.feature_name}</td>
                 <td class="fastfilter-table__cell">
                     {foreach from=$setting.default_values item=item}
-                        <span class="fastfilter-table__value">{$item.name}</span>{if !$item@last},&nbsp;{/if}
+                        <span class="fastfilter-table__value">{$item.name}</span>{*if !$item@last},&nbsp;{/if*}
                     {/foreach}
                 </td>
                 <td class="fastfilter-table__cell">

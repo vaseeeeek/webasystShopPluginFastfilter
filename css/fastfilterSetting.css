@@ -96,7 +96,7 @@
 .fastfilter-table__button {
     padding: 8px 12px;
     background-color: #ff4d4d;
-    color: white;
+    color: white!important;
     border: none;
     border-radius: 4px;
     text-decoration: none;
@@ -122,4 +122,8 @@
     padding: 3px 5px;
     border-radius: 5px;
     margin: 0 5px 5px 0;
+}
+
+th.fastfilter-table__cell {
+    white-space: nowrap;
 }
