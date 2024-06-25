@@ -61,3 +61,65 @@
     background-color: #1e7e34;
 }
 */
+
+/* Основные стили таблицы */
+.fastfilter-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+    text-align: left;
+}
+
+/* Стили для заголовка таблицы */
+.fastfilter-table__header {
+    background-color: #f2f2f2;
+}
+
+.fastfilter-table__cell--header {
+    font-weight: bold;
+    padding: 10px;
+    border-bottom: 2px solid #ddd;
+}
+
+/* Стили для строк и ячеек таблицы */
+.fastfilter-table__row {
+    border-bottom: 1px solid #ddd;
+}
+
+.fastfilter-table__cell {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Стили для последней ячейки с кнопкой удаления */
+.fastfilter-table__button {
+    padding: 8px 12px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.fastfilter-table__button:hover {
+    color: white!important;
+    background-color: #ff1a1a;
+}
+
+/* Дополнительные стили */
+.fastfilter-table__value {
+    display: inline-block;
+    margin-right: 5px;
+}
+.fastfilter-table__value {
+    display: inline-block;
+    /* margin-right: 5px; */
+    background: #ebebeb;
+    padding: 3px 5px;
+    border-radius: 5px;
+    margin: 0 5px 5px 0;
+}

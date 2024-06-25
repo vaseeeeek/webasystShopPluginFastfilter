@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="{$pluginUrl}css/fastfilterSetting.css">
+<link rel="stylesheet" href="{$pluginUrl}css/fastfilterSetting.css?v3">
 
 <form class="ff-form">
     {$wa->csrf()}
@@ -40,24 +40,29 @@
     </div>
 </form>
 
-<h2>Есть</h2>
-<table>
-    <thead>
-        <tr>
-            <th>Категория</th>
-            <th>Характеристика</th>
-            <th>Выводимые значения</th>
-            <th></th>
+<h2>Назначенные</h2>
+<table class="fastfilter-table">
+    <thead class="fastfilter-table__header">
+        <tr class="fastfilter-table__row fastfilter-table__row--header">
+            <th class="fastfilter-table__cell fastfilter-table__cell--header">Категория</th>
+            <th class="fastfilter-table__cell fastfilter-table__cell--header">Характеристика</th>
+            <th class="fastfilter-table__cell fastfilter-table__cell--header">Выводимые значения</th>
+            <th class="fastfilter-table__cell fastfilter-table__cell--header"></th>
         </tr>
     </thead>
-    <tbody>
+    <tbody class="fastfilter-table__body">
         {foreach from=$settings item=setting}
-            <tr>
-                <td>{$setting.category_id}</td>
-                <td>{$setting.feature_id}</td>
-                <td>{implode(', ', $setting.default_values)}</td>
-                <td>
-                    <a href="?module=plugins&plugin=fastfilter&action=delete&id={$setting.id}" class="button red">Delete</a>
+            <tr class="fastfilter-table__row">
+                {* {wa_dumpc($setting)} *}
+                <td class="fastfilter-table__cell">{$setting.category_id}</td>
+                <td class="fastfilter-table__cell">{$setting.feature_name}</td>
+                <td class="fastfilter-table__cell">
+                    {foreach from=$setting.default_values item=item}
+                        <span class="fastfilter-table__value">{$item.name}</span>{if !$item@last},&nbsp;{/if}
+                    {/foreach}
+                </td>
+                <td class="fastfilter-table__cell">
+                    <a href="?module=plugins&plugin=fastfilter&action=delete&id={$setting.id}" class="fastfilter-table__button">Удалить</a>
                 </td>
             </tr>
         {/foreach}

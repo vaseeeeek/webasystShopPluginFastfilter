@@ -1,22 +1,32 @@
 <?php
 
-class shopFastfilterPluginDeleteController extends waJsonController
+class shopFastfilterPluginBackendDeleteController extends waJsonController
 {
     public function execute()
     {
-        try {
-            $id = waRequest::get('id', 0, 'int');
+        // Получаем идентификатор записи для удаления из параметров запроса
+        $id = waRequest::post('id', 0, 'int');
 
-            if ($id) {
-                $model = new shopFastfilterSettingsModel();
-                $model->deleteSettings($id);
+        // Проверяем, передан ли идентификатор
+        if ($id > 0) {
+            // Инициализируем модель
+            $model = new shopFastfilterSettingsModel();
 
-                $this->response = ['status' => 'success'];
+            // Удаляем запись
+            $result = $model->deleteSettings($id);
+
+            // Проверяем результат удаления
+            if ($result) {
+                // Успешно
+                $this->response['status'] = 'ok';
+                $this->response['message'] = 'Запись успешно удалена.';
             } else {
-                throw new waException('Invalid ID');
+                // Ошибка при удалении
+                $this->setError('Ошибка при удалении записи.');
             }
-        } catch (Exception $e) {
-            $this->setError($e->getMessage());
+        } else {
+            // Неверный идентификатор
+            $this->setError('Неверный идентификатор записи.');
         }
     }
 }

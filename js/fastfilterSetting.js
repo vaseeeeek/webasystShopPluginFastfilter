@@ -99,3 +99,28 @@ class FastFilter {
 }
 
 new FastFilter();
+
+$(document).ready(function() {
+    $('.fastfilter-table__button').click(function(event) {
+        event.preventDefault();
+        var settingId = $(this).attr('href').split('id=')[1];
+        if (confirm('Вы уверены, что хотите удалить эту запись?')) {
+            $.ajax({
+                url: '?plugin=fastfilter&action=delete',
+                type: 'POST',
+                dataType: 'json',
+                data: { id: settingId },
+                success: function(response) {
+                    if (response.status === 'ok') {
+                        location.reload(); // Перезагрузка страницы после успешного удаления
+                    } else {
+                        alert('Ошибка: ' + response.errors.join(', '));
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Ошибка: ' + error);
+                }
+            });
+        }
+    });
+});
