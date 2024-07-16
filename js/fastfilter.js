@@ -1,6 +1,5 @@
 $(document).ready(function() {
-    $('.js-delete-setting').click(function() {
-        console.log(123);
+$('.js-delete-setting').click(function() {
         var settingId = $(this).data('id');
         if (confirm('Вы уверены, что хотите удалить эту запись?')) {
             $.ajax({

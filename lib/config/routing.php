@@ -4,6 +4,6 @@ return array (
   'frontend_filter' => array(
       'url' => 'plugin/fastfilter/filter/',
       'module' => 'frontend',
-      'action' => 'filter',
+      'action' => 'checkfilterintersection',
   ),
 );

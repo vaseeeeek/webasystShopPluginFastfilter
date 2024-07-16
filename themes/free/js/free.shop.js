@@ -37,7 +37,7 @@ var reviews = {
             navText: ["", ""],
             navElement: "div",
             navContainer: t,
-            responsive: {0: {items: 1}, 901: {items: 2}, 1201: {items: 3}},
+            responsive: { 0: { items: 1 }, 901: { items: 2 }, 1201: { items: 3 } },
             autoHeight: !0,
             lazyLoad: !0,
             onInitialize: function (e) {
@@ -52,7 +52,7 @@ var reviews = {
     init: function () {
         this.changeViewList(), this.setNumProductsOnPage()
     }, changeViewList: function () {
-        var t = this, a = {expires: 7, path: "/"}, s = $(".js-switch-product-view");
+        var t = this, a = { expires: 7, path: "/" }, s = $(".js-switch-product-view");
         $("body").on("click", ".js-switch-product-view", function () {
             var e = $(this), i = e.data("view");
             i && $.cookie("CategoryViewProducts", i, a), $(".js-filters.js-ajax form"), t.ajaxUpdateItemList(window.location.search), s.removeClass("selected"), e.addClass("selected")
@@ -60,7 +60,7 @@ var reviews = {
     }, setNumProductsOnPage: function () {
         $("#set-per-page").change(function () {
             var e = $(this).val();
-            $.cookie("products_per_page", e, {expires: 7, path: "/"});
+            $.cookie("products_per_page", e, { expires: 7, path: "/" });
             e = window.location.href.replace(/(page=)\w+/g, "page=1");
             window.location.href = e
         })
@@ -118,7 +118,7 @@ var reviews = {
             navText: ["", ""],
             lazyLoad: !0,
             dots: !1,
-            responsive: {0: {items: 1}, 401: {items: 2}, 801: {items: 3}, 1001: {items: 4}, 1201: {items: 8}},
+            responsive: { 0: { items: 1 }, 401: { items: 2 }, 801: { items: 3 }, 1001: { items: 4 }, 1201: { items: 8 } },
             onInitialize: function (e) {
                 brandsSlider.brandsBox.find(".js-carousel-brands-on-initialized").remove()
             },
@@ -154,9 +154,9 @@ var reviews = {
         });
     },
     send: function () {
-        const bindChangeEvent = function() {
+        const bindChangeEvent = function () {
             $(".js-filters.js-ajax form input").change(function () {
-                if (!$(this).closest('.filter__search').length){
+                if (!$(this).closest('.filter__search').length) {
                     var form = $(this).closest("form");
                     itemList.ajaxUpListForm(form.serializeArray());
                 }
@@ -248,9 +248,9 @@ var reviews = {
     clearFilterItem: function (e) {
         e = $(".js-filters").find(".js-filter-el[data-code='" + e + "']");
         e.find('input[type="checkbox"], input[type="radio"]').prop("checked", !1).trigger("refresh"),
-        e.find('input[type="text"]').val(""),
-        $(".js-filters .js-slider-range").remove(),
-        this.rangeFilter($(".js-filters .js-filter-range"));
+            e.find('input[type="text"]').val(""),
+            $(".js-filters .js-slider-range").remove(),
+            this.rangeFilter($(".js-filters .js-filter-range"));
     },
     subcatFilterAdd: function (e) {
         var i, t = $(".js-cat_sub"), a = t.data("save-filters"), s = t.data("save-filters-aliases"), r = e,
@@ -307,25 +307,101 @@ var reviews = {
     }
 }, categoryText = {
     moreDetails: function () {
-            var i, t, a = $(".js-category-desc-wrap"), s = a.data("max-height"), r = $(".js-category-desc");
+        var i, t, a = $(".js-category-desc-wrap"), s = a.data("max-height"), r = $(".js-category-desc");
         $(".js-category-desc-more-wrap").remove(), a.removeClass("close"), a.length && s && a.css("max-height", s + "px"), a.length && r.length && a.outerHeight() < r.outerHeight() ? (i = a.data("text-more"), t = a.data("text-hide"), a.addClass("close"), a.after("<div class='js-category-desc-more-wrap category-desc-more-wrap'><span class='js-category-desc-more category-desc-more sdColor link-half'>" + i + "</span></div>"), $(".js-category-desc-more").on("click", function () {
             var e = $(this);
-            e.hasClass("open") ? (e.removeClass("open"), a.addClass("close"), e.text(i), a.animate({maxHeight: s}, 500)) : (a.animate({maxHeight: r.outerHeight() + "px"}, 500), e.addClass("open"), a.removeClass("close"), e.text(t))
+            e.hasClass("open") ? (e.removeClass("open"), a.addClass("close"), e.text(i), a.animate({ maxHeight: s }, 500)) : (a.animate({ maxHeight: r.outerHeight() + "px" }, 500), e.addClass("open"), a.removeClass("close"), e.text(t))
         })) : a.removeAttr("style")
     }
 };
 
 function bindFilterChangeEvents() {
-    $(".js-filters.js-ajax form input").off('change').on('change', function() {
+    $(".js-filters.js-ajax form input").off('change').on('change', function () {
         if (!$(this).closest('.filter__search').length) {
             var form = $(this).closest("form");
+            var clickedFeatureId = $(this).closest('.js-filter-el').data('features_id').toString();
+            
             itemList.ajaxUpListForm(form.serializeArray());
+            checkFilterIntersections(form.serializeArray(), clickedFeatureId);
         }
     });
 }
+
+// Функция для проверки наличия пересечений товаров
+function checkFilterIntersections(formData, clickedFeatureId) {
+    const categoryId = document.querySelector('.js-filter-el').getAttribute('data-category_id');
+    const selectedFilters = Array.from(document.querySelectorAll('.js-style-check-input:checked')).map(input => ({
+        feature_id: input.closest('.js-filter-el').getAttribute('data-features_id'),
+        value_id: input.value
+    }));
+    
+    const notSelectedFilters = Array.from(document.querySelectorAll('.js-style-check-input:not(:checked)')).map(input => ({
+        feature_id: input.closest('.js-filter-el').getAttribute('data-features_id'),
+        value_id: input.value
+    })).filter(filter => filter.feature_id !== clickedFeatureId); 
+
+    const filterData = {
+        category_id: categoryId,
+        selected_filters: selectedFilters,
+        not_selected_filters: notSelectedFilters
+    };
+
+    // Если не выбрано ни одного фильтра, активируем все
+    if (selectedFilters.length === 0) {
+        notSelectedFilters.forEach(filter => {
+            const input = document.querySelector(`.js-style-check-input[value="${filter.value_id}"]`);
+            input.disabled = false;
+            input.closest('label').classList.remove('disabled');
+        });
+        return;
+    }
+
+    fetch('/plugin/fastfilter/filter/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify(filterData)
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.data.status === 'success') {
+                notSelectedFilters.forEach(filter => {
+                    const input = document.querySelector(`.js-style-check-input[value="${filter.value_id}"]`);
+                    if (data.data['has_products'][filter.value_id]) {
+                        input.disabled = false;
+                        input.closest('label').classList.remove('disabled'); 
+                    } else {
+                        input.disabled = true;
+                        input.closest('label').classList.add('disabled');
+                    }
+                });
+            } else {
+                console.error('Ошибка:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+        });
+}
+
+function enableFilter(featureId, valueId) {
+    const input = document.querySelector(`.js-style-check-input[data-features_id="${featureId}"][value="${valueId}"]`);
+    if (input) {
+        input.disabled = false;
+    }
+}
+
+function disableFilter(featureId, valueId) {
+    const input = document.querySelector(`.js-style-check-input[data-features_id="${featureId}"][value="${valueId}"]`);
+    if (input) {
+        input.disabled = true;
+    }
+}
+
 $(document).ready(function () {
     filter.init(), itemList.init(), paginationLazyLoad.init(), createCountDown.init(), brandsSlider.init(), categories.init(), categoryText.moreDetails(), reviews.init(), bindFilterChangeEvents();
-    
+
     $(function () {
         if (typeof window.seofilterOnFilterSuccessCallbacks === 'undefined') {
             window.seofilterOnFilterSuccessCallbacks = [];

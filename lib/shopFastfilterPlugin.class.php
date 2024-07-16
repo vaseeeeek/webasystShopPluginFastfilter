@@ -67,7 +67,6 @@ class shopFastfilterPlugin extends shopPlugin
 
             try {
                 $seo_url = $model->query("SELECT seo_url FROM `{$table_name}` WHERE `feature_value_id` = ?", $feature_value_id)->fetchField();
-                waLog::dump($seo_url);
                 if ($seo_url) {
                     // Выполняем редирект на SEO-friendly URL
                     wa()->getResponse()->redirect(wa()->getRouteUrl('/games/' . $seo_url));
